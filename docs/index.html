@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nook — free side panel for OnlyFans and Fansly chats</title>
+<meta name="description" content="Nook is a free, open-source Chrome extension for OnlyFans and Fansly creators who don't want to trade account safety for features: notes on fans, their spending, a check for restricted words, templates and optional AI, in the side panel. No requests of its own, nothing added to the page.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #ffffff;
+  --bg: #ffffff;
+  --bg-sub: #f5f5f7;
+  --bg-hover: #eeeef2;
+  --line: #ebebef;
+  --line-strong: #d8d8df;
+  --text: #18181b;
+  --text-2: #4e4e57;
+  --text-3: #6c6c77;
+  --accent: #5b4cf0;
+  --accent-bg: #5b4cf0;
+  --accent-soft: #efedfe;
+  --accent-text: #4234d4;
+  --danger: #d92d20;
+  --danger-soft: #fdeeec;
+  --danger-line: #f4c7c1;
+  --danger-text: #b42318;
+  --ok: #0f7b55;
+  --ok-soft: #e7f5ef;
+  --caution-soft: #fdf3e4;
+  --caution-text: #93500a;
+  --stage: #f3f3f6;
+  --site: #ffffff;
+  --shadow: 0 12px 32px rgba(24, 24, 27, 0.10), 0 0 0 1px rgba(24, 24, 27, 0.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #111113;
+    --bg: #141416;
+    --bg-sub: #1d1d21;
+    --bg-hover: #26262b;
+    --line: #26262c;
+    --line-strong: #36363e;
+    --text: #ececf0;
+    --text-2: #b8b8c2;
+    --text-3: #8e8e9a;
+    --accent: #a39bff;
+    --accent-bg: #6b5ff2;
+    --accent-soft: #262340;
+    --accent-text: #bdb6ff;
+    --danger: #ff6b5e;
+    --danger-soft: #33201d;
+    --danger-line: #5c2b26;
+    --danger-text: #ff9f95;
+    --ok: #3ccf8e;
+    --ok-soft: #17291f;
+    --caution-soft: #33270f;
+    --caution-text: #f5c27a;
+    --stage: #18181b;
+    --site: #202025;
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #111113;
+  --bg: #141416;
+  --bg-sub: #1d1d21;
+  --bg-hover: #26262b;
+  --line: #26262c;
+  --line-strong: #36363e;
+  --text: #ececf0;
+  --text-2: #b8b8c2;
+  --text-3: #8e8e9a;
+  --accent: #a39bff;
+  --accent-bg: #6b5ff2;
+  --accent-soft: #262340;
+  --accent-text: #bdb6ff;
+  --danger: #ff6b5e;
+  --danger-soft: #33201d;
+  --danger-line: #5c2b26;
+  --danger-text: #ff9f95;
+  --ok: #3ccf8e;
+  --ok-soft: #17291f;
+  --caution-soft: #33270f;
+  --caution-text: #f5c27a;
+  --stage: #18181b;
+  --site: #202025;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent-text); }
+a:not([href]) { color: inherit; }
+h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: -0.01em; }
+p { margin: 0; }
+code { padding: 1px 6px; border-radius: 6px; background: var(--bg-sub); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; }
+.wrap { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 16px; }
+.narrow { max-width: 720px; }
+.wrap.narrow { max-width: 980px; }
+.wrap.narrow > * { max-width: 720px; }
+@media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+/* ---- Top ---- */
+.top { border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 20px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 9px; color: var(--text); font-weight: 700; text-decoration: none; }
+.mark { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 7px; background: var(--accent-bg); color: #ffffff; font-size: 13px; font-weight: 800; }
+.top nav { display: flex; gap: 18px; margin-left: auto; }
+.top nav a { color: var(--text-2); font-size: 14px; text-decoration: none; }
+.top nav a:hover { color: var(--text); }
+@media (max-width: 600px) { .top nav a:not(.keep) { display: none; } }
+
+/* ---- Intro ---- */
+.intro { max-width: 720px; padding: 52px 0 36px; }
+.intro h1 { font-size: 36px; }
+.lede { margin-top: 12px; color: var(--text-2); font-size: 17px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--text-2); font-size: 13px; font-weight: 500; }
+.badge svg { color: var(--ok); }
+.links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.button.primary { background: var(--accent-bg); color: #ffffff; }
+.button.plain { border: 1px solid var(--line-strong); color: var(--text); }
+.button.plain:hover { background: var(--bg-sub); }
+
+/* ---- Sections ---- */
+section { padding: 48px 0; border-top: 1px solid var(--line); scroll-margin-top: 8px; }
+section h2 { font-size: 26px; }
+section .sub { margin-top: 10px; color: var(--text-2); font-size: 17px; }
+section p.body { margin-top: 14px; color: var(--text-2); }
+h3.part { margin-top: 36px; font-size: 18px; }
+
+.terms { margin-top: 24px; padding: 20px 22px; border: 1px solid var(--line-strong); border-radius: 14px; }
+.terms h3 { font-size: 16px; }
+.terms ul { margin: 12px 0 0; padding-left: 20px; color: var(--text-2); }
+.terms li { padding: 4px 0; }
+.terms .small { margin-top: 12px; color: var(--text-3); font-size: 13.5px; }
+
+.decisions { display: grid; gap: 14px; margin-top: 24px; }
+@media (min-width: 760px) { .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.decision { padding: 20px; border-radius: 14px; background: var(--bg-sub); }
+.decision h3 { font-size: 16.5px; }
+.decision p { margin-top: 6px; color: var(--text-2); font-size: 15px; }
+.decision .why { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-strong); color: var(--text-3); font-size: 14px; }
+.decision .why b { color: var(--text-2); font-weight: 600; }
+
+.points { display: grid; gap: 12px; margin: 20px 0 0; padding: 0; list-style: none; }
+@media (min-width: 720px) { .points { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.points li { padding: 18px; border: 1px solid var(--line); border-radius: 12px; }
+.points b { display: block; margin-bottom: 4px; }
+.points span { color: var(--text-2); font-size: 15px; }
+
+table { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 11px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { padding-right: 20px; color: var(--text); font-weight: 600; white-space: nowrap; }
+td { color: var(--text-2); }
+tr:last-child th, tr:last-child td { border-bottom: 0; }
+@media (max-width: 600px) { table:not(.keep) th, table:not(.keep) td { display: block; padding: 0; border: 0; } th { padding-top: 12px; } td { padding-bottom: 12px; border-bottom: 1px solid var(--line); } }
+
+/* ---- Features with demos ---- */
+.feature { display: grid; gap: 24px 48px; align-items: center; padding: 40px 0; border-bottom: 1px solid var(--line); }
+.feature:last-of-type { border-bottom: 0; }
+@media (min-width: 820px) {
+  .feature { grid-template-columns: minmax(0, 1fr) 380px; }
+  .feature.flip { grid-template-columns: 380px minmax(0, 1fr); }
+  .feature.flip .text { order: 2; }
+}
+.feature h3 { font-size: 21px; }
+.where { margin-top: 4px; color: var(--text-3); font-size: 13.5px; }
+.feature .text p { margin-top: 12px; }
+.feature .how { color: var(--text-2); font-size: 15px; }
+
+.also { display: grid; gap: 14px; margin-top: 8px; }
+@media (min-width: 760px) { .also { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.also div { padding: 18px; border-radius: 12px; background: var(--bg-sub); }
+.also h3 { font-size: 16px; }
+.also p { margin-top: 6px; color: var(--text-2); font-size: 15px; }
+
+/* The stage a demo plays on: the site's message box above, Nook's panel below */
+.stage { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 18px; background: var(--stage); font-size: 13px; line-height: 1.5; }
+.site-box { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 8px 8px 8px 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--site); }
+.site-box .typed { flex: 1; min-width: 0; color: var(--text); }
+.site-box .typed:empty::before { content: "Type a message…"; color: var(--text-3); }
+.site-box .send { flex: none; padding: 5px 12px; border-radius: 999px; background: var(--line-strong); color: var(--text-3); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; transition: transform 0.15s; }
+.site-label { margin: 0 0 -6px 4px; color: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.caret { display: inline-block; width: 1.5px; height: 1.1em; margin-left: 1px; vertical-align: -0.15em; background: var(--accent); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.key { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 24px; padding: 0 7px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--bg); color: var(--text-2); font-size: 11px; font-weight: 700; transition: transform 0.12s, background 0.12s; }
+.pressed { transform: translateY(1px) scale(0.96); background: var(--accent-soft) !important; }
+
+/* The panel, after Nook's own styles */
+.panel { overflow: hidden; border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); }
+.panel-pad { padding: 14px; }
+.fan { display: flex; align-items: center; gap: 11px; padding: 14px 14px 12px; }
+.avatar { flex: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #ffffff; font-weight: 600; }
+.fan-name { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.muted { color: var(--text-3); font-size: 12px; }
+.metrics { display: flex; flex-direction: column; gap: 10px; margin: 0 14px; padding: 11px 13px; border-radius: 12px; background: var(--bg-sub); }
+.metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.metric dt { color: var(--text-3); font-size: 11.5px; }
+.metric dd { margin: 0; min-height: 27px; font-size: 18px; font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 32px; padding-top: 9px; border-top: 1px solid var(--line-strong); }
+.chip { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--text-2); font-size: 11.5px; font-weight: 500; }
+.source { margin: 6px 14px 0 28px; color: var(--text-3); font-size: 11px; }
+.label { color: var(--text-3); font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.notes { display: flex; flex-direction: column; gap: 6px; padding: 14px 14px 12px; }
+.note-add { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 10px; background: var(--bg-sub); }
+.note-add .typed:empty::before { content: "Add a note"; color: var(--text-3); }
+.note { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.note:last-child { border-bottom: 0; }
+.dock { display: flex; flex-direction: column; gap: 9px; padding: 12px 14px 14px; border-top: 1px solid var(--line); transition: border-color 0.3s; }
+.dock.danger { border-top-color: var(--danger-line); }
+.dock-head { display: flex; align-items: center; justify-content: space-between; min-height: 22px; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; }
+.status.danger { color: var(--danger-text); }
+.status.ok { color: var(--ok); }
+.status.accent { color: var(--accent-text); }
+.status.quiet { color: var(--text-3); font-weight: 500; }
+.pill { padding: 1px 8px; border-radius: 999px; background: var(--danger-soft); color: var(--danger-text); font-size: 11px; font-weight: 700; }
+.mirror { min-height: 38px; padding: 8px 10px; border-radius: 10px; background: var(--bg-sub); white-space: pre-wrap; }
+mark { color: inherit; }
+mark.bad { padding: 0 2px; border-radius: 4px; background: var(--danger-soft); color: var(--danger-text); font-weight: 600; text-decoration: underline; text-decoration-color: var(--danger); text-underline-offset: 2px; }
+mark.add { padding: 0 2px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+mark.del { background: none; color: var(--text-3); text-decoration: line-through; }
+mark.name { padding: 0 3px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-text); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 11px; border-radius: 9px; background: var(--accent-bg); color: #ffffff; font-size: 12px; font-weight: 600; transition: transform 0.12s, filter 0.12s; }
+.btn.soft { background: var(--bg-sub); color: var(--text); }
+.btn.line { border: 1px solid var(--line-strong); background: var(--bg); color: var(--text-2); }
+.btn.pressed { transform: scale(0.95); filter: brightness(1.15); }
+.spinner { width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.shimmer { display: inline-block; width: 70%; height: 14px; border-radius: 6px; background: var(--line-strong); animation: pulse 1.1s ease-in-out infinite; vertical-align: middle; }
+@keyframes pulse { 50% { opacity: 0.45; } }
+.shake { animation: shake 0.4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+.fade-in { animation: fade 0.35s ease-out; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+
+.rows { display: flex; flex-direction: column; padding: 6px 0; }
+.row { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 14px; }
+.row .who { flex: 1; min-width: 0; overflow: hidden; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.row .when { color: var(--text-3); font-size: 11px; font-weight: 400; }
+.row .amount { display: flex; justify-content: flex-end; min-width: 64px; }
+.spent { font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.spent.whale { padding: 1px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-weight: 700; }
+.spent.low, .spent.none { color: var(--text-3); font-weight: 600; }
+.panel-foot { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 0 12px 0 14px; border-top: 1px solid var(--line); }
+
+.search { display: flex; align-items: center; gap: 8px; height: 36px; margin: 12px 14px 4px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 10px; }
+.search .typed:empty::before { content: "Search templates"; color: var(--text-3); }
+.template { display: flex; flex-direction: column; gap: 2px; padding: 8px 14px; transition: background 0.2s; }
+.template.sel { background: var(--bg-sub); }
+.template.hidden { display: none; }
+
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 12px 14px 4px; padding: 3px; border-radius: 11px; background: var(--bg-sub); }
+.tabs span { display: flex; align-items: center; justify-content: center; gap: 5px; overflow: hidden; height: 26px; border-radius: 8px; color: var(--text-2); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.tabs .on { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px rgba(24, 24, 27, 0.14); }
+.thread { display: flex; flex-direction: column; gap: 8px; min-height: 236px; padding: 10px 14px 12px; }
+.ask { align-self: flex-end; max-width: 85%; padding: 6px 11px; border-radius: 13px 13px 4px 13px; background: var(--accent-bg); color: #ffffff; }
+.ask:empty { display: none; }
+.card { display: flex; flex-direction: column; gap: 6px; padding: 9px 11px; border: 1px solid var(--line-strong); border-radius: 12px; }
+.card-bar { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.composer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 14px 14px; padding: 8px 8px 8px 12px; border: 1px solid var(--line-strong); border-radius: 13px; color: var(--text-3); }
+.composer .typed:empty::before { content: "Ask about Mike, or say what to write…"; color: var(--text-3); }
+.composer .typed { color: var(--text); }
+.go { flex: none; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: var(--accent-bg); color: #ffffff; font-size: 13px; }
+
+/* ---- Install, FAQ, footer ---- */
+.steps { margin: 20px 0 0; padding-left: 22px; }
+.steps li { padding: 6px 0; }
+.steps li::marker { color: var(--text-3); font-weight: 600; }
+pre { overflow-x: auto; margin: 12px 0 0; padding: 14px 16px; border-radius: 10px; background: var(--bg-sub); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; line-height: 1.7; }
+.faq h3 { margin-top: 22px; font-size: 16px; }
+.faq p { margin-top: 6px; color: var(--text-2); }
+footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--text-3); font-size: 13px; }
+
+/* ---- A browser window with the chat on the left and Nook's panel on the right ---- */
+:root { --chrome: #e9e9ee; --chrome-tab: #f4f4f7; --site-bg: #f7f7f9; --bubble-me: #e6ebf5; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --chrome: #0c0c0e; --chrome-tab: #19191d; --site-bg: #17171a; --bubble-me: #262c3a; } }
+:root[data-theme="dark"] { --chrome: #0c0c0e; --chrome-tab: #19191d; --site-bg: #17171a; --bubble-me: #262c3a; }
+
+.hero-demo { margin: 8px 0 56px; }
+.browser { position: relative; overflow: hidden; border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); font-size: 13px; line-height: 1.5; }
+.chrome { display: flex; align-items: flex-end; gap: 4px; height: 38px; padding: 0 12px; background: var(--chrome); }
+.chrome .dots { align-self: center; margin-right: 10px; }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+.tab { display: flex; align-items: center; gap: 7px; overflow: hidden; max-width: 180px; height: 30px; padding: 0 12px; border-radius: 9px 9px 0 0; color: var(--text-2); font-size: 12px; white-space: nowrap; }
+.tab.on { background: var(--bg); color: var(--text); }
+.tab.bg { display: none; background: var(--chrome-tab); color: var(--text-3); }
+.tab.bg.show { display: flex; animation: fade 0.25s ease-out; }
+.tab .spinner { width: 10px; height: 10px; color: var(--text-3); }
+.fav { flex: none; width: 12px; height: 12px; border-radius: 3px; background: var(--line-strong); }
+.toolbar { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.addr { flex: 1; overflow: hidden; height: 26px; padding: 0 12px; border-radius: 999px; background: var(--bg-sub); color: var(--text-3); font-size: 12px; line-height: 26px; text-overflow: ellipsis; white-space: nowrap; }
+.ext { position: relative; display: flex; }
+.ext-icon { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: var(--accent-bg); color: #ffffff; font-size: 11px; font-weight: 800; }
+.ext-badge { position: absolute; top: -5px; right: -7px; display: none; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px; background: var(--danger); color: #ffffff; font-size: 10px; font-weight: 800; line-height: 15px; text-align: center; }
+.ext-badge.show { display: block; animation: pop 0.3s ease-out; }
+@keyframes pop { from { transform: scale(0.3); } 70% { transform: scale(1.2); } }
+
+.browser-body { display: grid; grid-template-columns: minmax(0, 1fr) 310px; height: 480px; }
+.browser-body { grid-template-rows: minmax(0, 1fr); }
+.browser-body > * { min-height: 0; }
+.site { display: flex; flex-direction: column; min-width: 0; background: var(--site-bg); }
+.convo-head { flex: none; display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 18px; border-bottom: 1px solid var(--line); background: var(--site); }
+.convo { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; overflow: hidden; padding: 16px 18px; }
+.bubble { align-self: flex-start; max-width: 72%; padding: 8px 12px; border-radius: 16px 16px 16px 4px; background: var(--site); box-shadow: 0 0 0 1px var(--line); }
+.bubble.me { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--bubble-me); box-shadow: none; }
+.bubble.media { display: flex; align-items: center; gap: 8px; color: var(--text-3); }
+.site-input { flex: none; display: flex; align-items: center; gap: 10px; min-height: 50px; margin: 0 16px 16px; padding: 8px 8px 8px 14px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--site); }
+.site-input .typed { flex: 1; min-width: 0; }
+.site-input .typed:empty::before { content: "Type a message…"; color: var(--text-3); }
+
+.panel.side { display: flex; flex-direction: column; overflow: hidden; border-left: 1px solid var(--line); border-radius: 0; box-shadow: none; }
+.panel.side .dock { margin-top: auto; }
+.panel.side .tabs { margin-top: 12px; }
+.idle { display: flex; align-items: center; justify-content: space-between; min-height: 52px; margin-top: auto; padding: 0 12px 0 14px; border-top: 1px solid var(--line); }
+
+.cursor { position: absolute; top: 0; left: 0; z-index: 5; opacity: 0; pointer-events: none; transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; }
+.cursor svg { display: block; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); transition: transform 0.12s; transform-origin: 3px 3px; }
+.cursor.down svg { transform: scale(0.82); }
+
+.site-list { flex: 1; overflow: hidden; background: var(--site); }
+.site-row { display: flex; align-items: center; gap: 10px; height: 58px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.site-row .what { flex: 1; min-width: 0; }
+.site-row .what div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-row .when { color: var(--text-3); font-size: 11px; }
+.scroller { transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1); }
+.panel-rows { overflow: hidden; height: 252px; }
+.panel-head { display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 14px; }
+.count-pill { padding: 0 7px; border-radius: 999px; background: var(--bg-sub); color: var(--text-2); font-size: 11px; font-weight: 600; line-height: 18px; }
+.filters-mock { display: flex; gap: 6px; padding: 0 14px 8px; }
+.filters-mock span { padding: 3px 10px; border-radius: 999px; background: var(--bg-sub); color: var(--text-2); font-size: 11.5px; font-weight: 600; }
+.filters-mock .on { background: var(--text); color: var(--bg); }
+
+.context-line { display: flex; align-items: center; gap: 6px; padding: 2px 14px 0; color: var(--text-3); font-size: 11.5px; }
+
+/* Restricted words: try it, and the list */
+.words-grid { display: grid; gap: 20px; margin-top: 28px; }
+@media (min-width: 860px) { .words-grid { grid-template-columns: minmax(0, 1fr) 330px; } }
+.tryit { display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 18px; background: var(--stage); }
+.tryit input { width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 12px; outline: none; background: var(--site); color: var(--text); font: inherit; font-size: 15px; }
+.tryit input:focus { border-color: var(--accent); }
+.tryit .panel .dock { border-top: 0; }
+.caught { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; font-size: 13px; }
+.caught .pair { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 6px 8px; border-radius: 9px; background: var(--bg); }
+.caught .pair code { overflow: hidden; padding: 0; background: none; text-overflow: ellipsis; white-space: nowrap; }
+.caught .arrow { flex: none; color: var(--text-3); }
+.caught .word-chip { flex: none; height: 22px; margin-left: auto; padding: 0 7px; font-size: 11.5px; }
+.seg-mock { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; margin: 0 14px 8px; padding: 3px; border-radius: 10px; background: var(--bg-sub); }
+.seg-mock span { padding: 4px 0; border-radius: 7px; color: var(--text-2); font-size: 12px; font-weight: 600; text-align: center; }
+.seg-mock .on { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px rgba(24, 24, 27, 0.14); }
+.topic-group { margin: 6px 14px 12px; }
+.topic-group .label { padding: 0 2px 6px; }
+.topic-mock { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-bottom: 1px solid var(--line); background: var(--bg-sub); font-size: 13px; }
+.topic-mock:first-of-type { border-radius: 10px 10px 0 0; }
+.topic-mock:last-child { border-bottom: 0; border-radius: 0 0 10px 10px; }
+.topic-mock span:first-child { flex: 1; }
+.topic-mock .n { color: var(--text-3); font-size: 12px; }
+.switch-mock.off { background: var(--line-strong); }
+.word-cloud { display: flex; flex-wrap: wrap; gap: 5px; }
+.word-cloud .more { color: var(--text-3); font-size: 12px; line-height: 22px; }
+.word-chip.caution { background: var(--caution-soft); color: var(--caution-text); }
+.word-chip.picked { outline: 2px solid var(--accent); outline-offset: 1px; }
+.allow-mock { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 14px 4px; padding: 9px 10px; border-radius: 10px; background: var(--bg-sub); font-size: 12.5px; }
+.pill-toggle { padding: 2px 9px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--text-3); font-size: 11.5px; font-weight: 600; }
+.pill-toggle.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); }
+.switch-mock.off::after { left: 2px; }
+.word-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; background: var(--danger-soft); color: var(--danger-text); font-size: 12px; font-weight: 600; }
+.words-panel { display: flex; flex-direction: column; align-self: start; }
+.words-panel .search { margin-top: 0; border-color: var(--line-strong); }
+.switch-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 14px 0; padding: 10px 12px; border-radius: 10px; background: var(--bg-sub); }
+.switch-mock { position: relative; width: 32px; height: 19px; border-radius: 999px; background: var(--accent-bg); }
+.switch-mock::after { content: ""; position: absolute; top: 2px; left: 15px; width: 15px; height: 15px; border-radius: 50%; background: #ffffff; }
+.panel-actions { display: flex; gap: 8px; padding: 0 14px 14px; }
+
+@media (max-width: 760px) {
+  .browser-body { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; }
+  .convo-head, .convo, .site.list-only { display: none; }
+  .site-input { margin: 12px; }
+  .panel.side { min-height: 420px; border-top: 1px solid var(--line); border-left: 0; }
+  .cursor { display: none; }
+  .tab { max-width: 120px; }
+  .toolbar .addr { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></g></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></g></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></g></symbol>
+  <symbol id="i-insert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></g></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></g></symbol>
+  <symbol id="i-spell" viewBox="0 0 24 24"><path d="M3 18l4.5-12L12 18M4.7 14h5.6M14 15l2.5 2.5L21 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="mark">N</span>Nook</a>
+    <nav aria-label="Sections">
+      <a href="#why">Why</a>
+      <a href="#how">How it’s built</a>
+      <a href="#features">Features</a>
+      <a class="keep" href="#install">Install</a>
+      <a class="keep" data-repo="" href="#" hidden>GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="intro">
+      <div>
+        <h1>Nook</h1>
+        <p class="lede">A free, open-source Chrome extension for OnlyFans and Fansly creators. It sits in Chrome’s side panel next to your chats: notes on fans, what they’ve spent, a check for restricted words, templates, and optional AI.</p>
+        <p class="lede">It’s made for creators who don’t want to trade the safety of their account for features. Nook makes no requests of its own, adds nothing to the site, and never sends anything for you.</p>
+        <div class="badges">
+          <span class="badge"><svg width="14" height="14"><use href="#i-check"/></svg>Free</span>
+          <span class="badge"><svg width="14" height="14"><use href="#i-check"/></svg>Open source</span>
+          <span class="badge"><svg width="14" height="14"><use href="#i-check"/></svg>No account, no server</span>
+          <span class="badge"><svg width="14" height="14"><use href="#i-check"/></svg>Data stays in your browser</span>
+        </div>
+        <div class="links">
+          <a class="button primary" href="#install">How to install</a>
+          <a class="button plain" href="#why">Why it exists</a>
+        </div>
+      </div>
+
+    </div>
+    <!-- Demo: a chat with Nook beside it. The card fills in from the profile, a restricted word is held back, AI rewrites it. -->
+    <div class="browser hero-demo" data-demo="hero" role="img" aria-label="A chat with Nook in the side panel: the fan's spending loads from their profile in a background tab; a message with a disguised restricted word is held back when Enter is pressed; AI rewrites it and it's sent.">
+      <div class="chrome">
+        <span class="dots"><i></i><i></i><i></i></span>
+        <span class="tab on"><span class="fav"></span>Messages</span>
+        <span class="tab bg" data-bgtab><span class="spinner"></span><span data-bgname>miket</span></span>
+      </div>
+      <div class="toolbar">
+        <span class="addr">onlyfans.com/my/chats/chat/…</span>
+        <span class="ext" title="Nook"><span class="ext-icon">N</span><span class="ext-badge" data-badge>!</span></span>
+      </div>
+      <div class="browser-body">
+        <div class="site">
+          <div class="convo-head"><span class="avatar" style="width: 32px; height: 32px; background: #b07a3a; font-size: 13px">M</span><b>Mike T</b><span class="muted">@miket</span></div>
+          <div class="convo" data-convo>
+            <div class="bubble me media">▶ Video · $25 · unlocked</div>
+            <div class="bubble">ok that was worth every cent 🔥</div>
+            <div class="bubble">you looked insane in that beach set 😍</div>
+            <div class="bubble me">haha you liked it? 🙈</div>
+            <div class="bubble">liked it?? i’ve watched it like 10 times</div>
+            <div class="bubble">can we talk somewhere else? 👀</div>
+          </div>
+          <div class="site-input" data-inputrow><span class="typed" data-box></span><span class="key" data-enter>Enter ↵</span></div>
+        </div>
+        <aside class="panel side">
+          <div class="tabs"><span class="on"><span class="avatar" style="width: 16px; height: 16px; background: #b07a3a; font-size: 9px">M</span>Mike T</span><span><svg width="12" height="12"><use href="#i-spark"/></svg>AI</span><span>On screen</span></div>
+          <div class="fan">
+            <span class="avatar" style="width: 36px; height: 36px; background: #b07a3a; font-size: 15px">M</span>
+            <div><div class="fan-name">Mike T</div><div class="muted">@miket · OnlyFans</div></div>
+          </div>
+          <dl class="metrics">
+            <div class="metrics-row">
+              <div class="metric"><dt>Spent</dt><dd data-spent></dd></div>
+              <div class="metric"><dt>Subscribed</dt><dd data-sub></dd></div>
+            </div>
+            <div class="chips" data-chips></div>
+          </dl>
+          <div class="source" data-source></div>
+          <div class="notes" style="padding-bottom: 8px">
+            <span class="label">Notes</span>
+            <div class="note">Bought the beach set. Wants more behind-the-scenes.</div>
+          </div>
+          <div class="dock" data-dock>
+            <div class="dock-head"><span data-status></span><span data-pill></span></div>
+            <div class="mirror" data-mirror></div>
+            <div data-actions></div>
+          </div>
+        </aside>
+      </div>
+      <div class="cursor" data-cursor><svg width="20" height="22" viewBox="0 0 20 22"><path d="M2 1.5l15 10.2-6.6 1.3 3.9 7.3-2.8 1.4-3.8-7.4L2 19z" fill="#ffffff" stroke="#18181b" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+    </div>
+  </div>
+
+  <section id="why">
+    <div class="wrap narrow">
+      <h2>Why it exists</h2>
+      <p class="body">Most CRMs and chatting tools for OnlyFans get their features by working on your account from the outside. They sign in with your session or password from their own servers, pull chats and fans through the site’s internal API, or add buttons and badges to the page. That’s where their power comes from, and it’s also where the risk comes from: logins from places you’ve never been, traffic that doesn’t look like a person, and a company holding the keys to your account.</p>
+      <p class="body">That risk matters more now.</p>
+
+      <div class="terms">
+        <h3>OnlyFans’ updated Terms of Use, from November 1, 2026</h3>
+        <p class="body" style="margin-top: 8px">As summarized by creator and agency guides:</p>
+        <ul>
+          <li>OnlyFans can suspend an account and hold earnings when it believes you “have or may have breached” the terms. The old “seriously or repeatedly” wording is gone.</li>
+          <li>A new section restricts manual and automated tools built to collect information from content and messages, to get around access controls, or to train software and AI.</li>
+          <li>You stay responsible for anyone who helps manage or operate your account, and for their tools.</li>
+        </ul>
+        <p class="small">Read the <a href="https://onlyfans.com/terms">terms</a> yourself before choosing any tool. This page isn’t legal advice, and no tool can promise how a platform will judge it.</p>
+      </div>
+
+      <p class="body">Nook takes the opposite approach. It works only inside your own browser, on the page you already have open, and does as little as it can. If a feature would need a request to the site, a change to the page or a click on your behalf, Nook goes without it or finds a way around.</p>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="narrow" style="margin: 0">
+        <h2>How it’s built, and why</h2>
+        <p class="sub">The goal: the site sees what it sees when you use it yourself, and nothing more.</p>
+      </div>
+      <div class="decisions">
+        <div class="decision">
+          <h3>No requests of its own</h3>
+          <p>Nook never talks to OnlyFans or Fansly. It reads what’s already shown in your tab.</p>
+          <p class="why"><b>Why:</b> extra traffic to the site is the most visible thing a tool can do. Nook adds none.</p>
+        </div>
+        <div class="decision">
+          <h3>Nothing added to the page</h3>
+          <p>No buttons, badges or styles on the site, and no files a page could look for. Everything is in Chrome’s side panel, which pages can’t see.</p>
+          <p class="why"><b>Why:</b> a page can notice changes to itself. It can’t notice a panel that isn’t part of it.</p>
+        </div>
+        <div class="decision">
+          <h3>Shown the long way round</h3>
+          <p>Nook can’t mark spenders in the site’s chat list, so it shows the same chats in the panel, in the same order. Fansly spending is saved only when you open the Earnings window yourself. OnlyFans spending is read by opening the fan’s profile the way you would.</p>
+          <p class="why"><b>Why:</b> each of these gets the information without touching the site or clicking anything.</p>
+        </div>
+        <div class="decision">
+          <h3>Profiles opened like a person would</h3>
+          <p>When Nook needs a fan’s spending, it opens their profile in a background tab, reads it and closes it: one at a time, at most every 3 hours per fan, and five seconds apart when you check a whole list. Turn off “Look up spending on its own”, and profiles open only when you press Look up.</p>
+          <p class="why"><b>Why:</b> to the site, this is the same as you looking someone up. If you want even that only on request, it’s one switch.</p>
+        </div>
+        <div class="decision">
+          <h3>You press Send</h3>
+          <p>Insert puts text in the message box the same way pasting does. The only thing Nook ever stops is Enter and Send while a restricted word is in your message.</p>
+          <p class="why"><b>Why:</b> nothing goes out that you didn’t send yourself.</p>
+        </div>
+        <div class="decision">
+          <h3>No server, no account</h3>
+          <p>There’s no Nook server to sign in to and no analytics. Notes, spending, templates and words stay in your browser.</p>
+          <p class="why"><b>Why:</b> nobody else ever holds your session or your fans’ details.</p>
+        </div>
+        <div class="decision">
+          <h3>AI only when you ask, only what you allow</h3>
+          <p>AI runs through OpenRouter on your own key. The AI chat sees the messages on the page and the fan’s spending, and you can switch the chat off with one tap. Notes are never sent.</p>
+          <p class="why"><b>Why:</b> the AI is the one part that sends anything out, so it’s yours to control.</p>
+        </div>
+        <div class="decision">
+          <h3>Free and open source</h3>
+          <p>No subscription, no paid tier. The code is public on GitHub, so anyone can build it, report a problem or send a fix.</p>
+          <p class="why"><b>Why:</b> a tool that reads your chats shouldn’t be a black box.</p>
+        </div>
+      </div>
+
+      <h3 class="part">Permissions, and why</h3>
+      <table>
+        <tr><th><code>onlyfans.com</code>, <code>fansly.com</code></th><td>To read the chat you have open. Nook can’t see any other site.</td></tr>
+        <tr><th><code>sidePanel</code></th><td>To show the panel.</td></tr>
+        <tr><th><code>storage</code></th><td>To keep your notes, templates and words in the browser.</td></tr>
+        <tr><th><code>clipboardWrite</code></th><td>To copy text when you’d rather paste it yourself.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What it does</h2>
+      <p class="sub">Open a chat, and the panel follows it.</p>
+
+      <!-- Restricted words: try the real matching rules, and the list in Settings -->
+      <div style="padding: 40px 0; border-bottom: 1px solid var(--line)">
+        <div class="narrow">
+          <h3 style="font-size: 21px">Restricted words</h3>
+          <div class="where">OnlyFans, Fansly</div>
+          <p style="margin-top: 12px">While your message has a held-back word, Enter and Send do nothing, the Nook icon turns red, and the panel shows the message with the words marked. AI can rewrite it without them.</p>
+          <p class="how" style="margin-top: 10px; color: var(--text-2); font-size: 15px">Nook comes with a public list of 900+ words that get messages flagged, and you add your own. Tap any word to allow it everywhere or on one site only: your own @name, or a word that’s fine on Fansly but not on OnlyFans.</p>
+          <p class="how" style="margin-top: 10px; color: var(--text-2); font-size: 15px">Whole words only, so “class” never trips “ass”. Spacing, symbols and look-alike letters don’t get past it. A <code>*</code> at either end matches part of a word.</p>
+        </div>
+        <div class="words-grid">
+          <div class="tryit" data-tryit>
+            <div class="label">Try it: these are Nook’s real matching rules</div>
+            <input data-try-input aria-label="Type a message to check" placeholder="Type a message" autocomplete="off" spellcheck="false">
+            <div class="panel">
+              <div class="dock">
+                <div class="dock-head"><span data-try-status></span><span data-try-pill></span></div>
+                <div class="mirror" data-try-mirror></div>
+              </div>
+            </div>
+            <div class="label" style="margin-top: 6px">Caught, even disguised</div>
+            <div class="caught" data-caught></div>
+          </div>
+          <div class="panel words-panel" aria-label="Restricted words in Nook's settings: the built-in list, with a word picked to allow on one site">
+            <div class="panel-head"><span style="color: var(--text-3)">‹</span><b style="flex: 1">Restricted words</b></div>
+            <div class="seg-mock"><span>Yours</span><span class="on">Built-in</span><span>Allowed</span></div>
+            <div class="search"><svg width="14" height="14" style="color: var(--text-3)"><use href="#i-search"/></svg><span class="muted" style="font-size: 13px">Search 911 words</span></div>
+            <div class="allow-mock"><b>“hr”</b><span class="muted">Allow on</span><span class="pill-toggle">Everywhere</span><span class="pill-toggle">OnlyFans</span><span class="pill-toggle on">✓ Fansly</span></div>
+            <div class="topic-group">
+              <div class="label">Built-in · A to Z</div>
+              <div class="word-cloud"><span class="word-chip">bitcoin</span><span class="word-chip">cash app</span><span class="word-chip">crypto</span><span class="word-chip">discord</span><span class="word-chip">escort</span><span class="word-chip picked">hr</span><span class="word-chip">incall</span><span class="word-chip">kik</span><span class="word-chip">outcall</span><span class="word-chip">paypal</span><span class="word-chip">snap</span><span class="word-chip">telegram</span><span class="word-chip">wire</span><span class="more">…</span></div>
+            </div>
+          </div>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chats on screen -->
+      <div class="feature" style="grid-template-columns: 1fr; gap: 28px">
+        <div class="text narrow">
+          <h3>Chats on screen</h3>
+          <div class="where">OnlyFans</div>
+          <p>OnlyFans’ chat list can’t show what each fan has spent, and Nook doesn’t touch it. So the panel shows the same chats, in the same order, and follows as you scroll. Big spenders stand out.</p>
+          <p class="how">“Check spending” looks up the fans Nook doesn’t know yet: one profile at a time in a background tab, five seconds apart. Deleted accounts are marked and skipped.</p>
+        </div>
+        <div class="browser" data-demo="chats" role="img" aria-label="The OnlyFans chat list on the left and Nook's panel on the right with the same chats and what each fan spent. Scrolling the list moves the panel too; Check spending opens profiles one by one in a background tab.">
+          <div class="chrome">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="tab on"><span class="fav"></span>Messages</span>
+            <span class="tab bg" data-bgtab><span class="spinner"></span><span data-bgname></span></span>
+          </div>
+          <div class="toolbar"><span class="addr">onlyfans.com/my/chats</span><span class="ext"><span class="ext-icon">N</span></span></div>
+          <div class="browser-body">
+            <div class="site list-only">
+              <div class="convo-head"><b>Messages</b></div>
+              <div class="site-list"><div class="scroller" data-siterows></div></div>
+            </div>
+            <aside class="panel side">
+              <div class="panel-head"><b>Chats on screen</b><span class="count-pill">6</span></div>
+              <div class="filters-mock"><span class="on">All 6</span><span>Unread 3</span><span>$100+</span></div>
+              <div class="panel-rows"><div class="scroller" data-panelrows></div></div>
+              <div class="panel-foot" style="margin-top: auto"><span class="muted" data-foot></span><span class="btn soft" data-check><svg width="13" height="13"><use href="#i-refresh"/></svg>Check spending</span></div>
+            </aside>
+          </div>
+          <div class="cursor" data-cursor><svg width="20" height="22" viewBox="0 0 20 22"><path d="M2 1.5l15 10.2-6.6 1.3 3.9 7.3-2.8 1.4-3.8-7.4L2 19z" fill="#ffffff" stroke="#18181b" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      <!-- AI chat -->
+      <div class="feature" style="grid-template-columns: 1fr; gap: 28px">
+        <div class="text narrow">
+          <h3>AI chat about the fan</h3>
+          <div class="where">Optional, needs an OpenRouter key</div>
+          <p>Ask for a few replies, how to price a custom, or what to say next. Ready messages come as cards: Insert puts one in the chat box, already checked for restricted words. You press Send.</p>
+          <p class="how">With each question it gets what you allow: the messages loaded on the page, the fan’s spending and lists, and the last ten turns about this fan. Your notes are never sent. Describe how you write once, and it’s used for every fan.</p>
+        </div>
+        <div class="browser" data-demo="ai" role="img" aria-label="Asking AI in Nook's panel for replies to the fan: two messages come back, one is inserted into the chat box and sent by hand.">
+          <div class="chrome">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="tab on"><span class="fav"></span>Messages</span>
+          </div>
+          <div class="toolbar"><span class="addr">onlyfans.com/my/chats/chat/…</span><span class="ext"><span class="ext-icon">N</span></span></div>
+          <div class="browser-body">
+            <div class="site">
+              <div class="convo-head"><span class="avatar" style="width: 32px; height: 32px; background: #b07a3a; font-size: 13px">M</span><b>Mike T</b><span class="muted">@miket</span></div>
+              <div class="convo" data-convo>
+                <div class="bubble me media">▶ Video · $25 · unlocked</div>
+                <div class="bubble">you looked insane in that beach set 😍</div>
+                <div class="bubble me">haha you liked it? 🙈</div>
+                <div class="bubble">liked it?? i’ve watched it like 10 times</div>
+                <div class="bubble">send me the red bikini one again 😍</div>
+              </div>
+              <div class="site-input"><span class="typed" data-box></span><span class="key" data-enter>Enter ↵</span></div>
+            </div>
+            <aside class="panel side">
+              <div class="tabs"><span><span class="avatar" style="width: 16px; height: 16px; background: #b07a3a; font-size: 9px">M</span>Mike T</span><span class="on"><svg width="12" height="12"><use href="#i-spark"/></svg>AI</span><span>On screen</span></div>
+              <div class="context-line">Sees 5 messages · spent, lists</div>
+              <div class="thread" data-thread style="flex: 1; min-height: 0; justify-content: flex-end; overflow: hidden">
+                <div class="ask" data-ask></div>
+              </div>
+              <div class="composer"><span class="typed" data-input></span><span class="go" data-go>→</span></div>
+            </aside>
+          </div>
+          <div class="cursor" data-cursor><svg width="20" height="22" viewBox="0 0 20 22"><path d="M2 1.5l15 10.2-6.6 1.3 3.9 7.3-2.8 1.4-3.8-7.4L2 19z" fill="#ffffff" stroke="#18181b" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Notes and spending, Spelling -->
+      <div class="feature">
+        <div class="text">
+          <h3>Notes and spending</h3>
+          <div class="where">OnlyFans, Fansly</div>
+          <p>Notes and a nickname for every fan, what they’ve spent, how long they’ve been subscribed, and which of your lists they’re on.</p>
+          <p class="how">On OnlyFans, spending comes from the fan’s profile, opened in a background tab at most every 3 hours, or only when you press Look up if you turn that off. Fansly shows spending only in the chat’s Earnings window, so Nook saves it when you open that window yourself.</p>
+        </div>
+        <div class="stage" data-demo="card" aria-label="Opening a chat: Nook shows the fan's spending and lists from their profile, and your notes.">
+          <div class="panel">
+            <div class="fan">
+              <span class="avatar" style="width: 36px; height: 36px; background: #3a7bb0; font-size: 15px">D</span>
+              <div><div class="fan-name">Danny (the golfer)</div><div class="muted">@dannyr88 · OnlyFans</div></div>
+            </div>
+            <dl class="metrics">
+              <div class="metrics-row">
+                <div class="metric"><dt>Spent</dt><dd data-spent></dd></div>
+                <div class="metric"><dt>Subscribed</dt><dd data-sub></dd></div>
+              </div>
+              <div class="chips" data-chips></div>
+            </dl>
+            <div class="source" data-source></div>
+            <div class="notes">
+              <span class="label">Notes</span>
+              <div class="note-add"><svg width="14" height="14" style="color: var(--text-3)"><use href="#i-plus"/></svg><span class="typed" data-note-input></span></div>
+              <div data-notes>
+                <div class="note">Plays golf on weekends. Tips after a good round.<div class="muted">Oct 20</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature flip">
+        <div class="text">
+          <h3>Spelling</h3>
+          <div class="where">Optional, needs an OpenRouter key</div>
+          <p>Fixes typos and shows what changed, word by word, before anything goes into the chat.</p>
+          <p class="how">Only the message text is sent. A cheap model checks it first; if it refuses, your chosen model does, and the panel tells you.</p>
+        </div>
+        <div class="stage" data-demo="spelling" aria-label="Fixing spelling: the changes are shown word by word, then the fixed message replaces the one in the chat.">
+          <div class="site-label">The chat on the site</div>
+          <div class="site-box"><span class="typed" data-box></span><span class="send">SEND</span></div>
+          <div class="panel">
+            <div class="dock" style="border-top: 0">
+              <div class="dock-head"><span data-status></span><span data-action></span></div>
+              <div class="mirror" data-mirror></div>
+              <div data-buttons></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="part">Also</h3>
+      <div class="also" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))">
+        <div><h3>Templates</h3><p>Saved messages with tags and favorites. <code>{name}</code> becomes the fan’s first name.</p></div>
+        <div><h3>Improve</h3><p>Rewrites your message the way you ask (“flirtier”, “shorter”) and gives three versions.</p></div>
+        <div><h3>Insert or copy</h3><p>Insert puts text in the message box like pasting. Turn it off, and Nook copies instead.</p></div>
+        <div><h3>Your data</h3><p>Export a backup of fans, notes, templates and words, and import it on another computer.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap narrow">
+      <h2>Install</h2>
+      <p class="sub">Nook isn’t in the Chrome Web Store yet. Chrome can load it from a folder.</p>
+      <ol class="steps">
+        <li><a data-repo="/releases/latest">Download the latest build</a> (<code>nook-…-chrome.zip</code>) and unzip it.</li>
+        <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+        <li>Click <b>Load unpacked</b> and pick the folder.</li>
+        <li>Reload any OnlyFans or Fansly tabs you already had open.</li>
+        <li>Pin Nook, open a chat on OnlyFans or Fansly, and click its icon.</li>
+        <li>For AI, add your OpenRouter key in Settings. Everything else works without it.</li>
+      </ol>
+      <h3 class="part">Or build it from source</h3>
+      <p class="sub" style="font-size: 16px">You need Node 22 or newer.</p>
+      <pre>npm install
+npm run build      # the extension ends up in output/chrome-mv3</pre>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap narrow">
+      <h2>Questions</h2>
+      <div class="faq">
+        <h3>Can it get my account in trouble?</h3>
+        <p>Nook is built to give the site nothing to notice: no requests of its own, nothing on the page, no automation. Profiles it reads are opened the way you would open them. Still, it’s an unofficial tool, and no tool can promise how a platform will judge it.</p>
+        <h3>What does AI cost?</h3>
+        <p>Whatever OpenRouter charges for the model you pick. A spelling check is a tiny fraction of a cent; a question in the AI chat is about a cent or two with Grok.</p>
+        <h3>Which browsers?</h3>
+        <p>Chrome 116 or newer, and other Chromium browsers that support extension side panels.</p>
+        <h3>The site changed and something broke?</h3>
+        <p>Sites change their pages from time to time, and Nook then needs a small update. Issues and pull requests are welcome.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Nook is an independent community project under the MIT license<span data-repo-only hidden>, with its <a data-repo="">code on GitHub</a></span>. It is not affiliated with or endorsed by OnlyFans or Fansly. Names and messages on this page are made up.</p>
+  </div>
+</footer>
+
+<script>
+// The demos: each plays a short scene in a loop while it's on screen. With reduced motion,
+// each shows its last frame instead.
+(() => {
+  const STOP = Symbol('stop');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = (text) => text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const icon = (id, size = 13) => `<svg width="${size}" height="${size}"><use href="#i-${id}"/></svg>`;
+  const q = (el, name) => el.querySelector(`[data-${name}]`);
+
+  // Nook's matching rules for restricted words, as in src/lib/restricted.ts.
+  const LOOKALIKES = { a: 'aа@4', c: 'cс', e: 'eе3', i: 'iі1!|', l: 'l1|', o: 'oо0', p: 'pр', s: 'sѕ$5', t: 't7', x: 'xх', y: 'yу' };
+  const WORD = '[\\p{L}\\p{N}_]';
+  function matcher(words) {
+    const rules = words.map((entry) => {
+      const letters = [...entry.replace(/^\*+|\*+$/g, '').toLowerCase().replace(/[\s.\-_·•]+/g, '')];
+      const body = letters
+        .map((ch) => (LOOKALIKES[ch] ? `[${[...LOOKALIKES[ch]].map((c) => c.replace(/[\\\]^-]/g, '\\$&')).join('')}]` : ch.replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&')))
+        .join('[\\s.,\\-_*·•]{0,3}');
+      const start = `(?<!${WORD})${entry.startsWith('*') ? `${WORD}*` : ''}`;
+      const end = entry.endsWith('*') ? `${WORD}*` : `(?!${WORD})`;
+      return { word: entry, re: new RegExp(start + body + end, 'giu') };
+    });
+    return (text) => {
+      const found = [];
+      for (const { word, re } of rules) for (const m of text.matchAll(re)) found.push({ start: m.index, end: m.index + m[0].length, word });
+      found.sort((a, b) => a.start - b.start || b.end - a.end);
+      const merged = [];
+      for (const f of found) {
+        const last = merged.at(-1);
+        if (last && f.start < last.end) last.end = Math.max(last.end, f.end);
+        else merged.push({ ...f });
+      }
+      return merged;
+    };
+  }
+  const WORDS = ['paypal', 'cashapp', 'venmo', 'zelle', 'wise', 'revolut', 'apple pay', 'crypto', 'bitcoin', 'gift card', 'telegram', 'whatsapp',
+    'snapchat', 'kik', 'signal', 'discord', '*gram', 'email', 'phone number', 'text me', 'meet up', 'in person', 'hotel', 'pay*'];
+  const find = matcher(WORDS);
+  const marked = (text, matches = find(text)) => {
+    let out = '', at = 0;
+    for (const m of matches) {
+      out += esc(text.slice(at, m.start)) + `<mark class="bad">${esc(text.slice(m.start, m.end))}</mark>`;
+      at = m.end;
+    }
+    return out + esc(text.slice(at));
+  };
+
+  function play(el, scene) {
+    let run = 0;
+    const loop = async (id) => {
+      const wait = (ms) => new Promise((resolve, reject) => setTimeout(() => (id === run ? resolve() : reject(STOP)), ms));
+      try {
+        for (;;) await scene(el, wait);
+      } catch (error) {
+        if (error !== STOP) throw error;
+      }
+    };
+    if (still) {
+      scene(el, () => Promise.resolve(), true);
+      return;
+    }
+    new IntersectionObserver(([entry]) => (entry.isIntersecting ? loop(++run) : run++), { threshold: 0.3 }).observe(el);
+  }
+
+  async function type(node, text, wait, render = esc, speed = 45) {
+    let shown = '';
+    for (const ch of text) {
+      shown += ch;
+      node.innerHTML = render(shown) + '<span class="caret"></span>';
+      await wait(speed);
+    }
+    node.innerHTML = render(shown);
+  }
+
+  // The pointer, moved over a target in the window and pressed.
+  async function point(win, target, wait) {
+    const cursor = q(win, 'cursor');
+    if (!cursor || !target) return;
+    const w = win.getBoundingClientRect(), r = target.getBoundingClientRect();
+    cursor.style.opacity = '1';
+    cursor.style.transform = `translate(${r.left - w.left + Math.min(r.width * 0.5, 40)}px, ${r.top - w.top + r.height * 0.55}px)`;
+    await wait(700);
+  }
+  async function click(win, target, wait) {
+    await point(win, target, wait);
+    const cursor = q(win, 'cursor');
+    cursor?.classList.add('down');
+    target.classList.add('pressed');
+    await wait(170);
+    cursor?.classList.remove('down');
+    target.classList.remove('pressed');
+  }
+  const hideCursor = (win) => q(win, 'cursor') && (q(win, 'cursor').style.opacity = '0');
+  async function press(node, wait) {
+    node.classList.add('pressed');
+    await wait(180);
+    node.classList.remove('pressed');
+  }
+  const shake = (node) => {
+    node.classList.remove('shake');
+    void node.offsetWidth;
+    node.classList.add('shake');
+  };
+
+  const scenes = {
+    // The whole idea in one scene: the card fills in from the profile, a disguised word is held back, AI rewrites it.
+    async hero(el, wait, last) {
+      const bgtab = q(el, 'bgtab'), badge = q(el, 'badge'), box = q(el, 'box'), enter = q(el, 'enter'), row = q(el, 'inputrow');
+      const spent = q(el, 'spent'), sub = q(el, 'sub'), chips = q(el, 'chips'), source = q(el, 'source');
+      const dock = q(el, 'dock'), status = q(el, 'status'), pill = q(el, 'pill'), mirror = q(el, 'mirror'), actions = q(el, 'actions');
+      const convo = q(el, 'convo');
+      const bad = 'sure babe, add me on t3legram 😘';
+      const good = 'let’s keep it here babe, sending it now 😘';
+
+      const card = () => {
+        spent.innerHTML = '<span class="fade-in">$1,204.50</span>';
+        sub.innerHTML = '<span class="fade-in">3 months</span>';
+        chips.innerHTML = '<span class="chip fade-in">Whales</span><span class="chip fade-in">Customs</span>';
+        source.textContent = 'Spending and lists from their profile · just now';
+      };
+      const idle = () => {
+        dock.classList.remove('danger');
+        status.className = 'status quiet';
+        status.innerHTML = `${icon('shield')}Checking what you type`;
+        pill.innerHTML = '';
+        mirror.style.display = 'none';
+        actions.innerHTML = '';
+      };
+      const mirrorOf = (text) => {
+        const matches = find(text);
+        mirror.style.display = '';
+        mirror.innerHTML = marked(text, matches);
+        dock.classList.toggle('danger', matches.length > 0);
+        badge.classList.toggle('show', matches.length > 0);
+        status.className = matches.length ? 'status danger' : 'status ok';
+        status.innerHTML = matches.length ? `${icon('ban')}Won’t send` : `${icon('shield')}Clean`;
+        pill.innerHTML = matches.length ? `<span class="pill">${matches.length} restricted word</span>` : '';
+        actions.innerHTML = matches.length ? `<span class="btn" data-rewrite>${icon('spark')}Rewrite without them</span>` : '';
+      };
+
+      convo.querySelectorAll('.sent').forEach((n) => n.remove());
+      box.textContent = '';
+      badge.classList.remove('show');
+      if (last) {
+        card();
+        box.innerHTML = esc(bad);
+        mirrorOf(bad);
+        status.innerHTML = `${icon('ban')}Not sent`;
+        return;
+      }
+      hideCursor(el);
+      idle();
+      spent.innerHTML = sub.innerHTML = '<span class="shimmer"></span>';
+      chips.innerHTML = '';
+      source.textContent = 'Reading their profile in a background tab…';
+      bgtab.classList.add('show');
+      await wait(1800);
+      bgtab.classList.remove('show');
+      card();
+      await wait(900);
+      await click(el, row, wait);
+      let typed = '';
+      for (const ch of bad) {
+        typed += ch;
+        box.innerHTML = esc(typed) + '<span class="caret"></span>';
+        mirrorOf(typed);
+        await wait(55);
+      }
+      box.innerHTML = esc(typed);
+      await wait(800);
+      await press(enter, wait);
+      shake(row);
+      status.innerHTML = `${icon('ban')}Not sent`;
+      shake(dock);
+      await wait(1600);
+      const rewrite = q(el, 'rewrite');
+      await click(el, rewrite, wait);
+      rewrite.innerHTML = '<span class="spinner"></span>Writing…';
+      await wait(1200);
+      box.innerHTML = `<span class="fade-in">${esc(good)}</span>`;
+      mirrorOf(good);
+      await wait(1300);
+      await point(el, enter, wait);
+      await press(enter, wait);
+      box.textContent = '';
+      convo.insertAdjacentHTML('beforeend', `<div class="bubble me sent fade-in">${esc(good)}</div>`);
+      idle();
+      hideCursor(el);
+      await wait(3500);
+    },
+
+    // Opening a chat: the profile is read, then a note is added.
+    async card(el, wait, last) {
+      const spent = q(el, 'spent'), sub = q(el, 'sub'), chips = q(el, 'chips'), source = q(el, 'source');
+      const input = q(el, 'note-input'), notes = q(el, 'notes');
+      notes.querySelectorAll('.added').forEach((n) => n.remove());
+      input.textContent = '';
+      if (!last) {
+        spent.innerHTML = sub.innerHTML = '<span class="shimmer"></span>';
+        chips.innerHTML = '';
+        source.textContent = 'Reading their profile in a background tab…';
+        await wait(1600);
+      }
+      spent.innerHTML = '<span class="fade-in">$640</span>';
+      sub.innerHTML = '<span class="fade-in">7 months</span>';
+      chips.innerHTML = '<span class="chip fade-in">VIP</span><span class="chip fade-in">Tips a lot</span>';
+      source.textContent = 'Spending and lists from their profile · just now';
+      if (last) return;
+      await wait(1200);
+      await type(input, 'Birthday March 12. Send something cute a day early.', wait);
+      await wait(400);
+      input.textContent = '';
+      notes.insertAdjacentHTML('afterbegin', '<div class="note added fade-in">Birthday March 12. Send something cute a day early.<div class="muted">just now</div></div>');
+      await wait(3200);
+    },
+
+    // The chat list scrolls, the panel follows; Check spending opens profiles one by one.
+    async chats(el, wait, last) {
+      const CHATS = [
+        ['Mike T', 'miket', 'send me the beach set again 😍', '2m', 1204, 30],
+        ['Danny', 'dannyr88', 'good morning ☀️ did you sleep well?', '14m', 640, 210],
+        ['Kevin', 'kev_in', 'miss you! what have you been up to?', '1h', 312, 180],
+        ['Alex', 'alexm', 'ok', '3h', 0, 90],
+        ['Zach', 'zach_k', 'haha you’re too much', '5h', 2310, 270],
+        ['Sam', 'samj', 'are customs open this week?', 'Yesterday', 'gone', 140],
+        ['Ryan B', 'ryanb', 'when’s the next live?', 'Yesterday', 45, 10],
+        ['Chris W', 'cwells', 'Tip $5 · thank you', 'Oct 29', 860, 320],
+      ];
+      const KNOWN = new Set([0, 1, 2, 3]);
+      const bgtab = q(el, 'bgtab'), bgname = q(el, 'bgname'), siteRows = q(el, 'siterows'), panelRows = q(el, 'panelrows');
+      const foot = q(el, 'foot'), check = q(el, 'check');
+      const avatar = (name, hue, size) => `<span class="avatar" style="width: ${size}px; height: ${size}px; background: hsl(${hue} 48% 48%); font-size: ${Math.round(size * 0.42)}px">${name[0]}</span>`;
+      const amount = (v, known) =>
+        !known ? '<span class="spent none">—</span>'
+        : v === 'gone' ? '<span class="spent none fade-in">gone</span>'
+        : `<span class="spent ${v >= 1000 ? 'whale' : v >= 100 ? '' : 'low'} fade-in">$${v.toLocaleString('en-US')}</span>`;
+      siteRows.innerHTML = CHATS.map(([n, u, m, t, , h]) => `<div class="site-row">${avatar(n, h, 38)}<div class="what"><div><b>${n}</b> <span class="muted">@${u}</span></div><div class="muted" style="font-size: 12.5px">${esc(m)}</div></div><span class="when">${t}</span></div>`).join('');
+      const renderPanel = (known) => {
+        panelRows.innerHTML = CHATS.map(([n, , , t, v, h], i) => `<div class="row">${avatar(n, h, 28)}<span class="who">${n} <span class="when">${t}</span></span><span class="amount" data-i="${i}">${amount(v, known.has(i))}</span></div>`).join('');
+      };
+      const scroll = (rows) => {
+        siteRows.style.transform = `translateY(${-58 * rows}px)`;
+        panelRows.style.transform = `translateY(${-42 * rows}px)`;
+      };
+      if (last) {
+        renderPanel(new Set(CHATS.keys()));
+        scroll(2);
+        foot.textContent = 'All checked · one profile is gone';
+        check.style.visibility = 'hidden';
+        return;
+      }
+      hideCursor(el);
+      siteRows.style.transition = panelRows.style.transition = 'none';
+      scroll(0);
+      void siteRows.offsetWidth;
+      siteRows.style.transition = panelRows.style.transition = '';
+      const known = new Set(KNOWN);
+      renderPanel(known);
+      check.style.visibility = 'visible';
+      foot.textContent = '2 not checked yet';
+      await wait(1600);
+      scroll(2);
+      await wait(900);
+      foot.textContent = '4 not checked yet';
+      await wait(900);
+      await click(el, check, wait);
+      check.style.visibility = 'hidden';
+      hideCursor(el);
+      const todo = [4, 5, 6, 7];
+      for (const [n, i] of todo.entries()) {
+        foot.textContent = `Checking ${todo.length - n}…`;
+        bgname.textContent = `@${CHATS[i][1]}`;
+        bgtab.classList.add('show');
+        q(el, `i="${i}"`).innerHTML = '<span class="spinner" style="color: var(--text-3)"></span>';
+        await wait(1100);
+        bgtab.classList.remove('show');
+        known.add(i);
+        q(el, `i="${i}"`).innerHTML = amount(CHATS[i][4], true);
+        await wait(700);
+      }
+      foot.textContent = 'All checked · one profile is gone';
+      await wait(3500);
+    },
+
+    // AI: a question, two messages back, one inserted and sent by hand.
+    async ai(el, wait, last) {
+      const thread = q(el, 'thread'), ask = q(el, 'ask'), input = q(el, 'input'), box = q(el, 'box'), go = q(el, 'go'), enter = q(el, 'enter');
+      const convo = q(el, 'convo');
+      const question = 'a few replies to the last one';
+      const replies = [
+        'only 10 times? 😏 i might have something even better than the red one… want a peek?',
+        'you’re making me blush 🙈 the red bikini was just the warm-up, babe',
+      ];
+      const card = (text, i) =>
+        `<div class="card fade-in"><span>${esc(text)}</span><div class="card-bar"><span class="status ok" style="font-size: 11px">${icon('shield', 12)}Clean</span><span class="btn" data-insert="${i}" style="height: 26px">${icon('insert', 12)}Insert</span></div></div>`;
+      thread.querySelectorAll('.card, .ai-who').forEach((n) => n.remove());
+      convo.querySelectorAll('.sent').forEach((n) => n.remove());
+      box.textContent = '';
+      input.textContent = '';
+      if (last) {
+        ask.textContent = question;
+        thread.insertAdjacentHTML('beforeend', `<span class="status accent ai-who" style="font-size: 11px">${icon('spark', 12)}Grok</span>` + replies.map(card).join(''));
+        box.innerHTML = esc(replies[0]);
+        return;
+      }
+      hideCursor(el);
+      ask.textContent = '';
+      await wait(900);
+      await click(el, input.parentElement, wait);
+      await type(input, question, wait);
+      await click(el, go, wait);
+      input.textContent = '';
+      ask.textContent = question;
+      thread.insertAdjacentHTML('beforeend', `<span class="status accent ai-who" style="font-size: 11px">${icon('spark', 12)}<span class="spinner" style="width: 10px; height: 10px"></span>Writing…</span>`);
+      await wait(1600);
+      thread.querySelector('.ai-who').innerHTML = `${icon('spark', 12)}Grok`;
+      for (const [i, r] of replies.entries()) {
+        thread.insertAdjacentHTML('beforeend', card(r, i));
+        await wait(400);
+      }
+      await wait(1200);
+      await click(el, thread.querySelector('[data-insert="0"]'), wait);
+      box.innerHTML = `<span class="fade-in">${esc(replies[0])}</span>`;
+      await wait(1100);
+      await point(el, enter, wait);
+      await press(enter, wait);
+      box.textContent = '';
+      convo.insertAdjacentHTML('beforeend', `<div class="bubble me sent fade-in">${esc(replies[0])}</div>`);
+      hideCursor(el);
+      await wait(3500);
+    },
+
+    // Spelling: typos, the changes word by word, then into the chat.
+    async spelling(el, wait, last) {
+      const box = q(el, 'box'), status = q(el, 'status'), action = q(el, 'action'), mirror = q(el, 'mirror'), buttons = q(el, 'buttons');
+      const typo = 'i realy wanna see u tommorow';
+      const fixed = 'I really want to see you tomorrow';
+      const diff = '<mark class="del">i</mark> <mark class="add">I</mark> <mark class="del">realy</mark> <mark class="add">really</mark> <mark class="del">wanna</mark> <mark class="add">want to</mark> see <mark class="del">u</mark> <mark class="add">you</mark> <mark class="del">tommorow</mark> <mark class="add">tomorrow</mark>';
+      const done = () => {
+        status.className = 'status accent';
+        status.innerHTML = `${icon('spell')}Spelling · 5 fixes`;
+        action.innerHTML = '';
+        mirror.innerHTML = diff;
+        buttons.innerHTML = `<span class="btn" data-insert>${icon('insert')}Insert in chat</span>`;
+      };
+      if (last) {
+        box.innerHTML = esc(fixed);
+        done();
+        return;
+      }
+      box.innerHTML = esc(typo);
+      status.className = 'status ok';
+      status.innerHTML = `${icon('shield')}Clean`;
+      action.innerHTML = '';
+      mirror.innerHTML = esc(typo);
+      buttons.innerHTML = `<span class="btn line" data-spell>${icon('spell')}Spelling</span>`;
+      await wait(1500);
+      const spell = q(el, 'spell');
+      await press(spell, wait);
+      spell.innerHTML = '<span class="spinner"></span>Checking…';
+      await wait(1200);
+      done();
+      await wait(2000);
+      await press(q(el, 'insert'), wait);
+      box.innerHTML = `<span class="fade-in">${esc(fixed)}</span>`;
+      await wait(3000);
+    },
+  };
+
+  document.querySelectorAll('[data-demo]').forEach((el) => play(el, scenes[el.dataset.demo]));
+
+  // Links to the code and the download. On GitHub Pages (<user>.github.io/<repo>) the
+  // repository is worked out from the address; elsewhere, set REPO.
+  const REPO = '';
+  const pages = location.hostname.match(/^([^.]+)\.github\.io$/);
+  const repo = REPO || (pages ? `https://github.com/${pages[1]}/${location.pathname.split('/')[1] || `${pages[1]}.github.io`}` : '');
+  document.querySelectorAll('[data-repo]').forEach((a) => {
+    if (repo) {
+      a.href = repo + a.dataset.repo;
+      a.hidden = false;
+    } else if (a.dataset.repo === '/releases/latest') a.removeAttribute('href');
+  });
+  if (repo) document.querySelectorAll('[data-repo-only]').forEach((el) => (el.hidden = false));
+
+  // Restricted words: the list, what it catches, and a box to try it in.
+  const caught = document.querySelector('[data-caught]');
+  if (caught) {
+    const examples = [['p@yp4l'], ['p.a.y.p.a.l'], ['c4sh app'], ['t3legram'], ['cаshаpp', 'Cyrillic'], ['instagram'], ['payment'], ['meet-up']];
+    caught.innerHTML = examples
+      .map(([text, note]) => {
+        const hit = find(text)[0];
+        return `<div class="pair"><code>${esc(text)}</code>${note ? `<span class="muted" style="font-size: 11px">${note}</span>` : ''}<span class="arrow">→</span>${hit ? `<span class="word-chip">${esc(hit.word)}</span>` : '<span class="muted">not caught</span>'}</div>`;
+      })
+      .join('');
+  }
+  const tryit = document.querySelector('[data-tryit]');
+  if (tryit) {
+    const input = tryit.querySelector('[data-try-input]'), mirror = tryit.querySelector('[data-try-mirror]');
+    const status = tryit.querySelector('[data-try-status]'), pill = tryit.querySelector('[data-try-pill]'), dock = tryit.querySelector('.dock');
+    const show = () => {
+      const text = input.value, matches = find(text);
+      mirror.innerHTML = text ? marked(text, matches) : '<span class="muted">Your message shows up here.</span>';
+      dock.classList.toggle('danger', matches.length > 0);
+      status.className = matches.length ? 'status danger' : 'status ok';
+      status.innerHTML = matches.length ? `${icon('ban')}Won’t send` : `${icon('shield')}Clean`;
+      pill.innerHTML = matches.length ? `<span class="pill">${matches.length} restricted ${matches.length === 1 ? 'word' : 'words'}</span>` : '';
+    };
+    input.addEventListener('input', show);
+    const samples = ['send it to my p@yp4l and i’ll unlock it', 'add me on t3legram babe 😘', 'we could m.e.e.t u.p after 😉', 'that was a classy shot, thank you 💕'];
+    let typing = !still;
+    input.addEventListener('focus', () => (typing = false), { once: true });
+    if (!typing) {
+      input.value = samples[0];
+      show();
+    } else {
+      (async () => {
+        for (let i = 0; typing; i = (i + 1) % samples.length) {
+          input.value = '';
+          for (const ch of samples[i]) {
+            if (!typing) return;
+            input.value += ch;
+            show();
+            await new Promise((r) => setTimeout(r, 55));
+          }
+          await new Promise((r) => setTimeout(r, 2200));
+        }
+      })();
+    }
+    show();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "nook",
+  "description": "A free side panel for OnlyFans and Fansly chats: notes on fans, spending, a check for restricted words, templates and optional AI.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "preview:panel": "wxt build && node scripts/panel-preview.mjs",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@wxt-dev/module-react": "^1.2.2",
+    "happy-dom": "^21.0.4",
+    "typescript": "~5.9",
+    "vitest": "^5.0.5",
+    "wxt": "^0.21.5"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

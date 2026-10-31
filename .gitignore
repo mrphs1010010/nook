@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+*.zip
+*.crx
+*.pem
+output/
+.wxt/
+scripts/*.local.js
+refs/
+.claude/
+scripts/onlymonster-*.js
