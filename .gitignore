@@ -6,6 +6,7 @@ node_modules/
 output/
 .wxt/
 scripts/*.local.js
+scripts/*.local.sh
 refs/
 .claude/
 scripts/onlymonster-*.js

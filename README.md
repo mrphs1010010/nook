@@ -4,7 +4,7 @@ A free, open-source Chrome extension for OnlyFans and Fansly creators. It sits i
 
 It’s made for creators who don’t want to trade the safety of their account for features. Nook makes no requests of its own to the sites, adds nothing to their pages, and never sends anything for you.
 
-[Website](docs/index.html) · [Install](#install) · [Русская версия](README.ru.md)
+[Website](https://getnook.cc) · [Install](#install) · [Русская версия](README.ru.md)
 
 ## What it does
 
@@ -32,7 +32,7 @@ Nook is an unofficial tool. No tool can promise how a platform will judge it; re
 
 Nook isn’t in the Chrome Web Store yet.
 
-1. [Download `nook-chrome.zip`](../../releases/latest/download/nook-chrome.zip) from the latest release and unzip it.
+1. [Download `nook-chrome.zip`](https://getnook.cc/nook-chrome.zip) (the same file is in the [latest release](../../releases/latest)) and unzip it.
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
 3. Reload any OnlyFans or Fansly tabs you already had open.
 4. Pin Nook, open a chat and click its icon. For AI, add your OpenRouter key in Settings.
@@ -72,7 +72,7 @@ src/
     statsFetcher.ts   background tabs for OnlyFans spending
     ai.ts, aiChat.ts  OpenRouter: spelling, Improve, the AI chat and its memory
 tests/                Vitest
-docs/index.html       the website (one page, for GitHub Pages)
+docs/index.html       the website, getnook.cc (one page)
 dev/chrome-mock.js    the fake chrome.* API for preview:panel
 ```
 

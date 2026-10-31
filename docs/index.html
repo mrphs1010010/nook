@@ -136,8 +136,7 @@ code { padding: 1px 6px; border-radius: 6px; background: var(--bg-sub); font-fam
 .button.plain { border: 1px solid var(--line-strong); color: var(--text); }
 .button.plain:hover { background: var(--bg-sub); }
 .button.big { justify-content: center; gap: 10px; height: 58px; padding: 0 30px; border-radius: 14px; font-size: 18px; }
-.download { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 24px; }
-.download span { color: var(--text-3); font-size: 14px; }
+.download { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
 @media (max-width: 600px) { .download .button { flex: 1 1 100%; } }
 
 /* ---- Sections ---- */
@@ -412,6 +411,7 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--t
   <symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></g></symbol>
   <symbol id="i-insert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></g></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/></g></symbol>
+  <symbol id="i-github" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></g></symbol>
@@ -426,7 +426,7 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--t
       <a href="#how">How it’s built</a>
       <a href="#features">Features</a>
       <a class="keep" href="#install">Install</a>
-      <a class="keep" data-repo="" href="#" hidden>GitHub</a>
+      <a class="keep" href="https://github.com/mrphs1010010/nook">GitHub</a>
     </nav>
   </div>
 </header>
@@ -762,8 +762,8 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--t
       <h2>Install</h2>
       <p class="sub">Nook isn’t in the Chrome Web Store yet. Chrome can load it from a folder.</p>
       <div class="download">
-        <a class="button primary big" href="https://github.com/mrphs1010010/nook/releases/latest/download/nook-chrome.zip" data-repo="/releases/latest/download/nook-chrome.zip"><svg width="22" height="22"><use href="#i-download"/></svg>Download Nook</a>
-        <span>Free · for Chrome</span>
+        <a class="button primary big" href="https://getnook.cc/nook-chrome.zip"><svg width="22" height="22"><use href="#i-download"/></svg>Download Nook</a>
+        <a class="button plain big" href="https://github.com/mrphs1010010/nook"><svg width="20" height="20"><use href="#i-github"/></svg>Code on GitHub</a>
       </div>
       <ol class="steps">
         <li>Unzip the file you downloaded.</li>
@@ -799,7 +799,7 @@ npm run build      # the extension ends up in output/chrome-mv3</pre>
 
 <footer>
   <div class="wrap">
-    <p>Nook is an independent community project under the MIT license<span data-repo-only hidden>, with its <a data-repo="">code on GitHub</a></span>. It is not affiliated with or endorsed by OnlyFans or Fansly. Names and messages on this page are made up.</p>
+    <p>Nook is an independent community project under the MIT license, with its <a href="https://github.com/mrphs1010010/nook">code on GitHub</a>. It is not affiliated with or endorsed by OnlyFans or Fansly. Names and messages on this page are made up.</p>
   </div>
 </footer>
 
@@ -1174,17 +1174,6 @@ npm run build      # the extension ends up in output/chrome-mv3</pre>
   };
 
   document.querySelectorAll('[data-demo]').forEach((el) => play(el, scenes[el.dataset.demo]));
-
-  // Links to the code and the download. On GitHub Pages (<user>.github.io/<repo>) the
-  // repository is worked out from the address, so a fork's site links to the fork.
-  const REPO = 'https://github.com/mrphs1010010/nook';
-  const pages = location.hostname.match(/^([^.]+)\.github\.io$/);
-  const repo = pages ? `https://github.com/${pages[1]}/${location.pathname.split('/')[1] || `${pages[1]}.github.io`}` : REPO;
-  document.querySelectorAll('[data-repo]').forEach((a) => {
-    a.href = repo + a.dataset.repo;
-    a.hidden = false;
-  });
-  document.querySelectorAll('[data-repo-only]').forEach((el) => (el.hidden = false));
 
   // Restricted words: the list, what it catches, and a box to try it in.
   const caught = document.querySelector('[data-caught]');
