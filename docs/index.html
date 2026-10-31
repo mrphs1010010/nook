@@ -132,8 +132,13 @@ code { padding: 1px 6px; border-radius: 6px; background: var(--bg-sub); font-fam
 .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
 .button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; }
 .button.primary { background: var(--accent-bg); color: #ffffff; }
+.button.primary:hover { filter: brightness(1.08); }
 .button.plain { border: 1px solid var(--line-strong); color: var(--text); }
 .button.plain:hover { background: var(--bg-sub); }
+.button.big { justify-content: center; gap: 10px; height: 58px; padding: 0 30px; border-radius: 14px; font-size: 18px; }
+.download { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 24px; }
+.download span { color: var(--text-3); font-size: 14px; }
+@media (max-width: 600px) { .download .button { flex: 1 1 100%; } }
 
 /* ---- Sections ---- */
 section { padding: 48px 0; border-top: 1px solid var(--line); scroll-margin-top: 8px; }
@@ -406,6 +411,7 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--t
   <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></g></symbol>
   <symbol id="i-spark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></g></symbol>
   <symbol id="i-insert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></g></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/></g></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></g></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></g></symbol>
@@ -755,8 +761,12 @@ footer { padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--t
     <div class="wrap narrow">
       <h2>Install</h2>
       <p class="sub">Nook isn’t in the Chrome Web Store yet. Chrome can load it from a folder.</p>
+      <div class="download">
+        <a class="button primary big" href="https://github.com/mrphs1010010/nook/releases/latest/download/nook-chrome.zip" data-repo="/releases/latest/download/nook-chrome.zip"><svg width="22" height="22"><use href="#i-download"/></svg>Download Nook</a>
+        <span>Free · for Chrome</span>
+      </div>
       <ol class="steps">
-        <li><a data-repo="/releases/latest">Download the latest build</a> (<code>nook-…-chrome.zip</code>) and unzip it.</li>
+        <li>Unzip the file you downloaded.</li>
         <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
         <li>Click <b>Load unpacked</b> and pick the folder.</li>
         <li>Reload any OnlyFans or Fansly tabs you already had open.</li>
@@ -1166,17 +1176,15 @@ npm run build      # the extension ends up in output/chrome-mv3</pre>
   document.querySelectorAll('[data-demo]').forEach((el) => play(el, scenes[el.dataset.demo]));
 
   // Links to the code and the download. On GitHub Pages (<user>.github.io/<repo>) the
-  // repository is worked out from the address; elsewhere, set REPO.
-  const REPO = '';
+  // repository is worked out from the address, so a fork's site links to the fork.
+  const REPO = 'https://github.com/mrphs1010010/nook';
   const pages = location.hostname.match(/^([^.]+)\.github\.io$/);
-  const repo = REPO || (pages ? `https://github.com/${pages[1]}/${location.pathname.split('/')[1] || `${pages[1]}.github.io`}` : '');
+  const repo = pages ? `https://github.com/${pages[1]}/${location.pathname.split('/')[1] || `${pages[1]}.github.io`}` : REPO;
   document.querySelectorAll('[data-repo]').forEach((a) => {
-    if (repo) {
-      a.href = repo + a.dataset.repo;
-      a.hidden = false;
-    } else if (a.dataset.repo === '/releases/latest') a.removeAttribute('href');
+    a.href = repo + a.dataset.repo;
+    a.hidden = false;
   });
-  if (repo) document.querySelectorAll('[data-repo-only]').forEach((el) => (el.hidden = false));
+  document.querySelectorAll('[data-repo-only]').forEach((el) => (el.hidden = false));
 
   // Restricted words: the list, what it catches, and a box to try it in.
   const caught = document.querySelector('[data-caught]');

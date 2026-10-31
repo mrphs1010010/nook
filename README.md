@@ -32,7 +32,7 @@ Nook is an unofficial tool. No tool can promise how a platform will judge it; re
 
 Nook isn’t in the Chrome Web Store yet.
 
-1. Download `nook-<version>-chrome.zip` from [Releases](../../releases/latest) and unzip it.
+1. [Download `nook-chrome.zip`](../../releases/latest/download/nook-chrome.zip) from the latest release and unzip it.
 2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
 3. Reload any OnlyFans or Fansly tabs you already had open.
 4. Pin Nook, open a chat and click its icon. For AI, add your OpenRouter key in Settings.

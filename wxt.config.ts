@@ -6,6 +6,8 @@ export default defineConfig({
   outDir: 'output', // not hidden, so it's easy to pick in Chrome's Load unpacked dialog
   modules: ['@wxt-dev/module-react'],
   imports: false,
+  // One name for every release, so the website's download link always gets the latest.
+  zip: { artifactTemplate: '{{name}}-{{browser}}.zip' },
   dev: {
     // An IP rather than "localhost", which doesn't resolve on every machine.
     server: { host: '127.0.0.1', origin: '127.0.0.1' },
